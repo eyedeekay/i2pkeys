@@ -4,8 +4,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/eyedeekay/sam3"
 	"os"
+
+	"github.com/eyedeekay/sam3"
 )
 
 var (
@@ -16,8 +17,8 @@ var (
 	useshortstdin  = flag.Bool("i", false, "short for 'input'")
 	generate       = flag.Bool("generate", true, "generate new keys(requires SAM connection for now)")
 	generatekeys   = flag.Bool("g", true, "short for 'generate'")
-	samaddr        = flag.String("samaddress", "127.0.0.1:7657", "")
-	sam            = flag.String("s", "127.0.0.1:7657", "short for 'samaddress'")
+	samaddr        = flag.String("samaddress", "127.0.0.1:7656", "")
+	sam            = flag.String("s", "127.0.0.1:7656", "short for 'samaddress'")
 	delimiter      = flag.String("delimiter", "=", "string to use as a delimiter in output")
 	delim          = flag.String("d", "=", "short for 'delimiter'")
 )
