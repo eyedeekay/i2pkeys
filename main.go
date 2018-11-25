@@ -55,49 +55,62 @@ func main() {
 		} else if *shorterkeyfile != "" {
 			keyfile = shorterkeyfile
 		}
+		var dogeneratekeys = false
 		if *generate || *generatekeys {
-			if *samaddr != "" {
-				samaddr = samaddr
-			} else if *sam != "" {
-				samaddr = sam
-			} else {
-				*samaddr = "127.0.0.1:7657"
-			}
-			sam, err := sam3.NewSAM(*samaddr)
-			if err != nil {
-				panic(err.Error())
-			}
-			keys, err := sam.NewKeys()
-			if err != nil {
-				panic(err.Error())
-			}
-
-			openfile, err := os.Open(*keyfile)
-			if err != nil {
-				if strings.Contains(err.Error(), "no such file") {
-					openfile, err = os.Create(*keyfile)
-				} else {
-					panic(err.Error())
-				}
-			}
-			if err != nil {
-				panic(err.Error())
-			}
-			err = sam3.StoreKeysIncompat(keys, openfile)
-			if err != nil {
-				panic(err.Error())
-			}
+			dogeneratekeys = true
+		}
+		if dogeneratekeys {
+			GenerateKeys()
 		} else {
-			openfile, err := os.Open(*keyfile)
-			if err != nil {
-				panic(err.Error())
-			}
-			addr, err := sam3.LoadKeysIncompat(openfile)
-			if err != nil {
-				panic(err.Error())
-			}
-			fmt.Printf("base32%s%s", *delimiter, addr.Addr().Base64())
-			fmt.Printf("base64%s%s", *delimiter, addr.Addr().Base32())
+			DisplayKeys()
 		}
 	}
+}
+
+func GenerateKeys() {
+	var samaddrstring = "127.0.0.1:7657"
+	if *samaddr != "" {
+		samaddrstring = *samaddr
+	} else if *sam != "" {
+		samaddrstring = *sam
+	}
+	sam, err := sam3.NewSAM(samaddrstring)
+	if err != nil {
+		panic(err.Error())
+	}
+	keys, err := sam.NewKeys()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	openfile, err := os.Open(*keyfile)
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file") {
+			openfile, err = os.Create(*keyfile)
+		} else {
+			panic(err.Error())
+		}
+	}
+	if err != nil {
+		panic(err.Error())
+	}
+	err = sam3.StoreKeysIncompat(keys, openfile)
+	if err != nil {
+		panic(err.Error())
+	}
+	openfile.Close()
+}
+
+func DisplayKeys() {
+	openfile, err := os.Open(*keyfile)
+	if err != nil {
+		panic(err.Error())
+	}
+	addr, err := sam3.LoadKeysIncompat(openfile)
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Printf("base32%s%s", *delimiter, addr.Addr().Base64())
+	fmt.Printf("base64%s%s", *delimiter, addr.Addr().Base32())
+	openfile.Close()
 }
