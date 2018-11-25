@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/eyedeekay/sam3"
 )
@@ -38,13 +39,13 @@ func main() {
 			str := scanner.Text()
 			addr, err := sam3.NewI2PAddrFromString(str)
 			if err != nil {
-				fmt.Printf("%s", err.Error())
+				panic(err.Error())
 			}
 			fmt.Printf("base32%s%s", *delimiter, addr.Base64())
 			fmt.Printf("base64%s%s", *delimiter, addr.Base32())
 		}
 		if err := scanner.Err(); err != nil {
-			fmt.Printf("%s", err.Error())
+			panic(err.Error())
 		}
 	} else if *keyfile != "" || *shortkeyfile != "" || *shorterkeyfile != "" {
 		if *keyfile != "" {
@@ -64,28 +65,36 @@ func main() {
 			}
 			sam, err := sam3.NewSAM(*samaddr)
 			if err != nil {
-				fmt.Printf("%s", err.Error())
+				panic(err.Error())
 			}
 			keys, err := sam.NewKeys()
 			if err != nil {
-				fmt.Printf("%s", err.Error())
+				panic(err.Error())
 			}
+
 			openfile, err := os.Open(*keyfile)
 			if err != nil {
-				fmt.Printf("%s", err.Error())
+				if strings.Contains(err.Error(), "no such file") {
+					openfile, err = os.Create(*keyfile)
+				} else {
+					panic(err.Error())
+				}
+			}
+			if err != nil {
+				panic(err.Error())
 			}
 			err = sam3.StoreKeysIncompat(keys, openfile)
 			if err != nil {
-				fmt.Printf("%s", err.Error())
+				panic(err.Error())
 			}
 		} else {
 			openfile, err := os.Open(*keyfile)
 			if err != nil {
-				fmt.Printf("%s", err.Error())
+				panic(err.Error())
 			}
 			addr, err := sam3.LoadKeysIncompat(openfile)
 			if err != nil {
-				fmt.Printf("%s", err.Error())
+				panic(err.Error())
 			}
 			fmt.Printf("base32%s%s", *delimiter, addr.Addr().Base64())
 			fmt.Printf("base64%s%s", *delimiter, addr.Addr().Base32())
