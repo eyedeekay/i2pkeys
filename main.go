@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	keyfile        = flag.String("keyfile", "default.i2pkeys", "key file to use for both generation and reading")
-	shortkeyfile   = flag.String("file", "default.i2pkeys", "short for 'keyfile'")
-	shorterkeyfile = flag.String("f", "default.i2pkeys", "shorter for 'file'")
+	keyfile        = flag.String("keyfile", "tunnel.i2pkeys", "key file to use for both generation and reading")
+	shortkeyfile   = flag.String("file", "tunnel.i2pkeys", "short for 'keyfile'")
+	shorterkeyfile = flag.String("f", "tunnel.i2pkeys", "shorter for 'file'")
 	usestdin       = flag.Bool("input", false, "read key base64 from stdin")
 	useshortstdin  = flag.Bool("i", false, "short for 'input'")
 	generate       = flag.Bool("generate", true, "generate new keys(requires SAM connection for now)")
@@ -41,8 +41,8 @@ func main() {
 			if err != nil {
 				panic(err.Error())
 			}
-			fmt.Printf("base32%s%s", *delimiter, addr.Base64())
-			fmt.Printf("base64%s%s", *delimiter, addr.Base32())
+			fmt.Printf("base32%s%s\n", *delimiter, addr.Base64())
+			fmt.Printf("base64%s%s\n", *delimiter, addr.Base32())
 		}
 		if err := scanner.Err(); err != nil {
 			panic(err.Error())
@@ -55,11 +55,7 @@ func main() {
 		} else if *shorterkeyfile != "" {
 			keyfile = shorterkeyfile
 		}
-		var dogeneratekeys = false
-		if *generate || *generatekeys {
-			dogeneratekeys = true
-		}
-		if dogeneratekeys {
+		if *generate && *generatekeys {
 			GenerateKeys()
 		} else {
 			DisplayKeys()
@@ -68,6 +64,7 @@ func main() {
 }
 
 func GenerateKeys() {
+	fmt.Printf("Generating keys at %s\n", *keyfile)
 	var samaddrstring = "127.0.0.1:7657"
 	if *samaddr != "" {
 		samaddrstring = *samaddr
@@ -83,22 +80,31 @@ func GenerateKeys() {
 		panic(err.Error())
 	}
 
-	openfile, err := os.Open(*keyfile)
+	openfile, err := os.Create(*keyfile)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such file") {
-			openfile, err = os.Create(*keyfile)
+			openfile, err := os.Open(*keyfile)
+			if err != nil {
+				panic(err.Error())
+			}
+			err = sam3.StoreKeysIncompat(keys, openfile)
+			if err != nil {
+				panic(err.Error())
+			}
+			openfile.Close()
 		} else {
 			panic(err.Error())
 		}
+	} else {
+		if err != nil {
+			panic(err.Error())
+		}
+		err = sam3.StoreKeysIncompat(keys, openfile)
+		if err != nil {
+			panic(err.Error())
+		}
+		openfile.Close()
 	}
-	if err != nil {
-		panic(err.Error())
-	}
-	err = sam3.StoreKeysIncompat(keys, openfile)
-	if err != nil {
-		panic(err.Error())
-	}
-	openfile.Close()
 }
 
 func DisplayKeys() {
@@ -110,7 +116,7 @@ func DisplayKeys() {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("base32%s%s", *delimiter, addr.Addr().Base64())
-	fmt.Printf("base64%s%s", *delimiter, addr.Addr().Base32())
+	fmt.Printf("base32%s%s\n", *delimiter, addr.Addr().Base64())
+	fmt.Printf("base64%s%s\n", *delimiter, addr.Addr().Base32())
 	openfile.Close()
 }
