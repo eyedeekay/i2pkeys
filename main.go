@@ -41,8 +41,8 @@ func main() {
 			if err != nil {
 				panic(err.Error())
 			}
-			fmt.Printf("base32%s%s\n", *delimiter, addr.Base64())
-			fmt.Printf("base64%s%s\n", *delimiter, addr.Base32())
+			fmt.Printf("base64%s%s\n", *delimiter, addr.Base64())
+			fmt.Printf("base32%s%s\n", *delimiter, addr.Base32())
 		}
 		if err := scanner.Err(); err != nil {
 			panic(err.Error())
@@ -116,7 +116,7 @@ func DisplayKeys() {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("base32%s%s\n", *delimiter, addr.Addr().Base64())
-	fmt.Printf("base64%s%s\n", *delimiter, addr.Addr().Base32())
+	fmt.Printf("base64%s%s\n", *delimiter, addr.Addr().Base64())
+	fmt.Printf("base32%s%s\n", *delimiter, addr.Addr().Base32())
 	openfile.Close()
 }
