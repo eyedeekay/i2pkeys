@@ -9,7 +9,9 @@ import (
 	"encoding/base32"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
+	"net"
 	"os"
 	"strings"
 )
@@ -312,30 +314,48 @@ func Base32(anything string) string {
 	return I2PAddr(anything).Base32()
 }
 
-/*func NewDestination(samaddr string, sigType ...string) (I2PKeys, error) {
-	if samaddr == "" {
-		samaddr = "127.0.0.1:7656"
-	}
-	client, err := goSam.NewClient(samaddr)
-	if err != nil {
-		return I2PKeys{}, err
-	}
-	var sigtmp string
-	if len(sigType) > 0 {
-		sigtmp = sigType[0]
-	}
-	pub, priv, err := client.NewDestination(sigtmp)
-	if err != nil {
-		return I2PKeys{}, err
-	}
-	addr, err := NewI2PAddrFromBytes([]byte(pub))
-	if err != nil {
-		return I2PKeys{}, err
-	}
-	keys := NewKeys(addr, priv+pub)
-	if err != nil {
-		return I2PKeys{}, err
-	}
-	return keys, nil
-}
+/*
+HELLO VERSION MIN=3.1 MAX=3.1
+DEST GENERATE SIGNATURE_TYPE=7
 */
+func NewDestination() (*I2PKeys, error) {
+	conn, err := net.Dial("tcp", "127.0.0.1:7656")
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	_, err = conn.Write([]byte("HELLO VERSION MIN=3.1 MAX=3.1\n"))
+	if err != nil {
+		return nil, err
+	}
+	buf := make([]byte, 4096)
+	n, err := conn.Read(buf)
+	if err != nil {
+		return nil, err
+	}
+	if n < 1 {
+		return nil, fmt.Errorf("no data received")
+	}
+	if strings.Contains(string(buf[:n]), "RESULT=OK") {
+		_, err = conn.Write([]byte("DEST GENERATE SIGNATURE_TYPE=7\n"))
+		if err != nil {
+			return nil, err
+		}
+		n, err = conn.Read(buf)
+		if err != nil {
+			return nil, err
+		}
+		if n < 1 {
+			return nil, fmt.Errorf("no destination data received")
+		}
+		pub := strings.Split(strings.Split(string(buf[:n]), "PRIV=")[0], "PUB=")[1]
+		priv := strings.Split(string(buf[:n]), "PRIV=")[1]
+
+		return &I2PKeys{
+			Address: I2PAddr(pub),
+			Both:    pub + priv,
+		}, nil
+
+	}
+	return nil, fmt.Errorf("no result received")
+}

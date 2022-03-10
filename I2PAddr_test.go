@@ -1,6 +1,5 @@
 package i2pkeys
 
-/*
 import (
 	"fmt"
 	"testing"
@@ -12,7 +11,7 @@ const yoursam = "127.0.0.1:7656"
 func Test_Basic(t *testing.T) {
 	fmt.Println("Test_Basic")
 	fmt.Println("\tAttaching to SAM at " + yoursam)
-	keys, err := NewDestination("")
+	keys, err := NewDestination()
 	if err != nil {
 		fmt.Println(err.Error())
 		t.Fail()
@@ -20,4 +19,3 @@ func Test_Basic(t *testing.T) {
 	}
 	fmt.Println(keys.String())
 }
-*/
