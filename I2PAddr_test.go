@@ -19,3 +19,15 @@ func Test_Basic(t *testing.T) {
 	}
 	fmt.Println(keys.String())
 }
+
+func Test_Basic_Lookup(t *testing.T) {
+	fmt.Println("Test_Basic")
+	fmt.Println("\tAttaching to SAM at " + yoursam)
+	keys, err := Lookup("idk.i2p")
+	if err != nil {
+		fmt.Println(err.Error())
+		t.Fail()
+		return
+	}
+	fmt.Println(keys.String())
+}
