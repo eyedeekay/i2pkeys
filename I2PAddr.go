@@ -86,6 +86,16 @@ func StoreKeysIncompat(k I2PKeys, w io.Writer) (err error) {
 }
 
 func StoreKeys(k I2PKeys, r string) error {
+	if _, err := os.Stat(r); err != nil {
+		if os.IsNotExist(err) {
+			fi, err := os.Create(r)
+			if err != nil {
+				return err
+			}
+			defer fi.Close()
+			return StoreKeysIncompat(k, fi)
+		}
+	}
 	fi, err := os.Open(r)
 	if err != nil {
 		return err
