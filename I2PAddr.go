@@ -21,6 +21,9 @@ var (
 	i2pB32enc *base32.Encoding = base32.NewEncoding("abcdefghijklmnopqrstuvwxyz234567")
 )
 
+// If you set this to true, Addr will return a base64 String()
+var StringIsBase64 bool
+
 // The public and private keys associated with an I2P destination. I2P hides the
 // details of exactly what this is, so treat them as blobs, but generally: One
 // pair of DSA keys, one pair of ElGamal keys, and sometimes (almost never) also
@@ -238,6 +241,9 @@ func (a I2PAddr) Base64() string {
 
 // Returns the I2P destination (base32-encoded)
 func (a I2PAddr) String() string {
+	if StringIsBase64 {
+		return a.Base64()
+	}
 	return string(a.Base32())
 }
 
