@@ -242,7 +242,7 @@ func (a I2PAddr) Base64() string {
 // Returns the I2P destination (base32-encoded)
 func (a I2PAddr) String() string {
 	if StringIsBase64 {
-		return a.Base64()
+		return a.Base64() + ".i2p"
 	}
 	return string(a.Base32())
 }
