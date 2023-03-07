@@ -242,7 +242,7 @@ func (a I2PAddr) Base64() string {
 // Returns the I2P destination (base32-encoded)
 func (a I2PAddr) String() string {
 	if StringIsBase64 {
-		return a.Base64() + ".i2p"
+		return a.Base64()
 	}
 	return string(a.Base32())
 }
@@ -267,7 +267,7 @@ func NewI2PAddrFromString(addr string) (I2PAddr, error) {
 	addr = strings.Trim(addr, "\t\n\r\f ")
 	// very basic check
 	if len(addr) > 4096 || len(addr) < 516 {
-		return I2PAddr(""), errors.New("Not an I2P address")
+		return I2PAddr(""), errors.New(addr + " is not an I2P address")
 	}
 	buf := make([]byte, i2pB64enc.DecodedLen(len(addr)))
 	if _, err := i2pB64enc.Decode(buf, []byte(addr)); err != nil {
