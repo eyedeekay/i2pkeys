@@ -83,11 +83,13 @@ func LoadKeys(r string) (I2PKeys, error) {
 }
 
 // store keys in non standard format
-func StoreKeysIncompat(k I2PKeys, w io.Writer) (err error) {
-	_, err = io.WriteString(w, k.Address.Base64()+"\n"+k.Both)
-	return
+func StoreKeysIncompat(k I2PKeys, w io.Writer) error {
+	_, err := io.WriteString(w, k.Address.Base64()+"\n"+k.Both)
+	if err != nil {
+		return fmt.Errorf("error writing keys: %w", err)
+	}
+	return nil
 }
-
 func StoreKeys(k I2PKeys, r string) error {
 	if _, err := os.Stat(r); err != nil {
 		if os.IsNotExist(err) {
