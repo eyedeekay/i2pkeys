@@ -47,7 +47,7 @@ func fileExists(filename string) (bool, error) {
 	if os.IsNotExist(err) {
 		return false, nil
 	} else if err != nil {
-		return false, err
+		return false, fmt.Errorf("error checking file existence: %w", err)
 	}
 	return !info.IsDir(), nil
 }
