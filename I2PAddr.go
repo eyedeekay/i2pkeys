@@ -175,7 +175,7 @@ func (k I2PKeys) String() string {
 func (k I2PKeys) HostnameEntry(hostname string, opts crypto.SignerOpts) (string, error) {
 	sig, err := k.Sign(rand.Reader, []byte(hostname), opts)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error signing hostname: %w", err)
 	}
 	return string(sig), nil
 }
