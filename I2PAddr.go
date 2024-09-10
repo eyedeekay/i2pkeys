@@ -71,15 +71,15 @@ func LoadKeys(r string) (I2PKeys, error) {
 	if err != nil {
 		return I2PKeys{}, err
 	}
-	if exists {
-		fi, err := os.Open(r)
-		if err != nil {
-			return I2PKeys{}, err
-		}
-		defer fi.Close()
-		return LoadKeysIncompat(fi)
+	if !exists {
+		return I2PKeys{}, fmt.Errorf("file does not exist: %s", r)
 	}
-	return I2PKeys{}, err
+	fi, err := os.Open(r)
+	if err != nil {
+		return I2PKeys{}, fmt.Errorf("error opening file: %w", err)
+	}
+	defer fi.Close()
+	return LoadKeysIncompat(fi)
 }
 
 // store keys in non standard format
