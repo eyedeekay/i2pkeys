@@ -2,8 +2,6 @@ package i2pkeys
 
 import (
 	"bytes"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -162,12 +160,6 @@ func removeNewlines(s string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(s, "\r\n", ""), "\n", "")
 }
 func Test_KeyGenerationAndHandling(t *testing.T) {
-	getMD5Hash := func(text string) string {
-		hasher := md5.New()
-		hasher.Write([]byte(text))
-		return hex.EncodeToString(hasher.Sum(nil))
-	}
-	_ = getMD5Hash("")
 	// Generate new keys
 	keys, err := NewDestination()
 	if err != nil {
@@ -175,18 +167,16 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 	}
 	t.Run("LoadKeysIncompat", func(t *testing.T) {
 		//extract keys
-		addr := keys.Address
-		addr2 := keys.Addr()
+		addr := keys.Addr()
 		fmt.Println(addr)
-		fmt.Println(addr2)
 
-		both := removeNewlines(keys.Both)
+		//both := removeNewlines(keys.Both)
+		both := keys.Both
 		fmt.Println(both)
-		public := keys.Public() //not encoded to print?
-		_ = public
 
 		//FORMAT TO LOAD: (Address, Both)
 		addrload := addr.String() + "\n" + both
+
 		r := strings.NewReader(addrload)
 		loadedKeys, err := LoadKeysIncompat(r)
 		if err != nil {
@@ -195,13 +185,15 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 
 		if loadedKeys.Address != keys.Address {
 			//fmt.Printf("loadedKeys.Address md5hash: '%s'\n keys.Address md5hash: '%s'\n", getMD5Hash(string(loadedKeys.Address)), getMD5Hash(string(keys.Address)))
-			t.Errorf("LoadKeysIncompat returned incorrect address. Got '%s', want '%s'", loadedKeys.Address, keys.Address)
-
+			t.Errorf("LoadKeysIncompat returned incorrect address/public key. Got '%s', want '%s'", loadedKeys.Address, keys.Address)
 		}
-
 		if loadedKeys.Both != keys.Both {
-			t.Errorf("LoadKeysIncompat returned incorrect pair. Got '%s'\nwant '%s'", loadedKeys.Both, keys.Both)
+			t.Errorf("LoadKeysIncompat returned incorrect pair. Got '%s'\nwant '%s'\n", loadedKeys.Both, keys.Both)
+			if loadedKeys.Both == removeNewlines(keys.Both) {
+				fmt.Println("However, both pairs are correct if newline is removed in generated keys.")
+			}
 		}
+
 	})
 
 	expected := keys.Address.Base64() + "\n" + keys.Both
