@@ -218,30 +218,25 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 	})
 
 	t.Run("StoreKeys", func(t *testing.T) {
-		// Create a temporary directory instead of a file
 		tmpDir, err := ioutil.TempDir("", "test_keys_")
 		if err != nil {
 			t.Fatalf("Failed to create temp directory: '%v'", err)
 		}
-		defer os.RemoveAll(tmpDir) // clean up
-
-		// Create a file path in the temporary directory
+		defer os.RemoveAll(tmpDir)
 		tmpFilePath := filepath.Join(tmpDir, "test_keys.txt")
 
-		// Use the file path with StoreKeys
 		err = StoreKeys(*keys, tmpFilePath)
 		if err != nil {
 			t.Fatalf("StoreKeys failed: '%v'", err)
 		}
 
-		// Read the file contents
 		content, err := ioutil.ReadFile(tmpFilePath)
 		if err != nil {
-			t.Fatalf("Failed to read temp file: %v", err)
+			t.Fatalf("Failed to read temp file: '%v'", err)
 		}
 
 		if string(content) != expected {
-			t.Errorf("StoreKeys wrote incorrect data. Got %s, want %s", string(content), expected)
+			t.Errorf("StoreKeys wrote incorrect data. Got '%s', want '%s'", string(content), expected)
 		}
 	})
 }
