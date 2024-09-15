@@ -167,7 +167,7 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 	}
 	t.Run("LoadKeysIncompat", func(t *testing.T) {
 		//extract keys
-		addr := keys.Addr()
+		addr := keys.Address
 		fmt.Println(addr)
 
 		//both := removeNewlines(keys.Both)
@@ -175,7 +175,7 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 		fmt.Println(both)
 
 		//FORMAT TO LOAD: (Address, Both)
-		addrload := addr.String() + "\n" + both
+		addrload := addr.Base64() + "\n" + both
 
 		r := strings.NewReader(addrload)
 		loadedKeys, err := LoadKeysIncompat(r)
