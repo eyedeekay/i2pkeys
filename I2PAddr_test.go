@@ -3,6 +3,8 @@ package i2pkeys
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
@@ -175,5 +177,62 @@ func Test_I2PAddrToBytes(t *testing.T) {
 
 	if !bytes.Equal(decodedBytes, directlyDecoded) {
 		t.Errorf("Mismatch between ToBytes result and direct decoding. ToBytes len: %d, Direct decoding len: %d", len(decodedBytes), len(directlyDecoded))
+	}
+}
+
+func TestKeyGenerationAndHandling(t *testing.T) {
+	// Generate new keys
+	keys, err := NewDestination()
+	if err != nil {
+		t.Fatalf("Failed to generate new I2P keys: %v", err)
+	}
+
+	// Test LoadKeysIncompat
+	r := strings.NewReader(keys.Address.Base64() + "\n" + keys.Both)
+	loadedKeys, err := LoadKeysIncompat(r)
+	if err != nil {
+		t.Fatalf("LoadKeysIncompat failed: %v", err)
+	}
+
+	if loadedKeys.Address != keys.Address {
+		t.Errorf("LoadKeysIncompat returned incorrect public key. Got %s, want %s", loadedKeys.Address, keys.Address)
+	}
+
+	if loadedKeys.Both != keys.Both {
+		t.Errorf("LoadKeysIncompat returned incorrect private key. Got %s, want %s", loadedKeys.Both, keys.Both)
+	}
+
+	// Test StoreKeysIncompat
+	var buf bytes.Buffer
+	err = StoreKeysIncompat(*keys, &buf)
+	if err != nil {
+		t.Fatalf("StoreKeysIncompat failed: %v", err)
+	}
+
+	expected := keys.Address.Base64() + "\n" + keys.Both
+	if buf.String() != expected {
+		t.Errorf("StoreKeysIncompat wrote incorrect data. Got %s, want %s", buf.String(), expected)
+	}
+
+	// Test StoreKeys
+	tmpfile, err := ioutil.TempFile("", "test_keys_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpfile.Name()) // clean up
+
+	err = StoreKeys(*keys, tmpfile.Name())
+	if err != nil {
+		t.Fatalf("StoreKeys failed: %v", err)
+	}
+
+	// Read the file contents
+	content, err := ioutil.ReadFile(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("Failed to read temp file: %v", err)
+	}
+
+	if string(content) != expected {
+		t.Errorf("StoreKeys wrote incorrect data. Got %s, want %s", string(content), expected)
 	}
 }
