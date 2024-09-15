@@ -185,7 +185,8 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 
 		if loadedKeys.Address != keys.Address {
 			//fmt.Printf("loadedKeys.Address md5hash: '%s'\n keys.Address md5hash: '%s'\n", getMD5Hash(string(loadedKeys.Address)), getMD5Hash(string(keys.Address)))
-			t.Errorf("LoadKeysIncompat returned incorrect address/public key. Got '%s', want '%s'", loadedKeys.Address, keys.Address)
+			t.Errorf("LoadKeysIncompat returned incorrect address. Got '%s', want '%s'", loadedKeys.Address, keys.Address)
+
 		}
 		if loadedKeys.Both != keys.Both {
 			t.Errorf("LoadKeysIncompat returned incorrect pair. Got '%s'\nwant '%s'\n", loadedKeys.Both, keys.Both)
