@@ -2,9 +2,12 @@ package i2pkeys
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -155,115 +158,90 @@ func Test_I2PAddrToBytes(t *testing.T) {
 		}
 	})
 }
-
+func removeNewlines(s string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(s, "\r\n", ""), "\n", "")
+}
 func Test_KeyGenerationAndHandling(t *testing.T) {
+	getMD5Hash := func(text string) string {
+		hasher := md5.New()
+		hasher.Write([]byte(text))
+		return hex.EncodeToString(hasher.Sum(nil))
+	}
+	_ = getMD5Hash("")
 	// Generate new keys
 	keys, err := NewDestination()
 	if err != nil {
 		t.Fatalf("Failed to generate new I2P keys: %v", err)
 	}
+	t.Run("LoadKeysIncompat", func(t *testing.T) {
+		//extract keys
+		addr := keys.Address
+		addr2 := keys.Addr()
+		fmt.Println(addr)
+		fmt.Println(addr2)
 
-	parts := strings.Split(keys.String(), " ")
-	var pubString, privString string
-	if len(parts) == 2 {
-		pubString = parts[0]
-		privString = parts[1]
-	} else {
-		t.Fatalf("keys.String() does not contain two keys separated by a space.")
-	}
-	fmt.Printf("pubString: %s\n", pubString)
-	fmt.Printf("privString: %s\n", privString)
-	// Test LoadKeysIncompat
-	r := strings.NewReader(pubString + "\n" + privString)
-	loadedKeys, err := LoadKeysIncompat(r)
-	if err != nil {
-		t.Fatalf("LoadKeysIncompat failed: %v", err)
-	}
+		both := removeNewlines(keys.Both)
+		fmt.Println(both)
+		public := keys.Public() //not encoded to print?
+		_ = public
 
-	if loadedKeys.Address != keys.Address {
-		t.Errorf("LoadKeysIncompat returned incorrect public key. Got %s, want %s", loadedKeys.Address, keys.Address)
-	}
+		//FORMAT TO LOAD: (Address, Both)
+		vappe := addr.String() + "\n" + both
+		r := strings.NewReader(vappe)
+		loadedKeys, err := LoadKeysIncompat(r)
+		if err != nil {
+			t.Fatalf("LoadKeysIncompat failed: %v", err)
+		}
 
-	if loadedKeys.Both != keys.Both {
-		t.Errorf("LoadKeysIncompat returned incorrect private key. Got %s, want %s", loadedKeys.Both, keys.Both)
-	}
+		if loadedKeys.Address != keys.Address {
+			//fmt.Printf("loadedKeys.Address md5hash: '%s'\n keys.Address md5hash: '%s'\n", getMD5Hash(string(loadedKeys.Address)), getMD5Hash(string(keys.Address)))
+			t.Errorf("LoadKeysIncompat returned incorrect public key. Got '%s', want '%s'", loadedKeys.Address, keys.Address)
 
-	// Test StoreKeysIncompat
-	var buf bytes.Buffer
-	err = StoreKeysIncompat(*keys, &buf)
-	if err != nil {
-		t.Fatalf("StoreKeysIncompat failed: %v", err)
-	}
+		}
+
+		if loadedKeys.Both != keys.Both {
+			t.Errorf("LoadKeysIncompat returned incorrect private key. Got '%s'\nwant '%s'", loadedKeys.Both, keys.Both)
+		}
+	})
 
 	expected := keys.Address.Base64() + "\n" + keys.Both
-	if buf.String() != expected {
-		t.Errorf("StoreKeysIncompat wrote incorrect data. Got %s, want %s", buf.String(), expected)
-	}
 
-	// Test StoreKeys
-	tmpfile, err := ioutil.TempFile("", "test_keys_*.txt")
-	if err != nil {
-		t.Fatalf("Failed to create temp file: %v", err)
-	}
-	defer os.Remove(tmpfile.Name()) // clean up
+	t.Run("StoreKeysIncompat", func(t *testing.T) {
+		var buf bytes.Buffer
+		err := StoreKeysIncompat(*keys, &buf)
+		if err != nil {
+			t.Fatalf("StoreKeysIncompat failed: '%v'", err)
+		}
+		if buf.String() != expected {
+			t.Errorf("StoreKeysIncompat wrote incorrect data. Got '%s', want '%s'", buf.String(), expected)
+		}
+	})
 
-	err = StoreKeys(*keys, tmpfile.Name())
-	if err != nil {
-		t.Fatalf("StoreKeys failed: %v", err)
-	}
+	t.Run("StoreKeys", func(t *testing.T) {
+		// Create a temporary directory instead of a file
+		tmpDir, err := ioutil.TempDir("", "test_keys_")
+		if err != nil {
+			t.Fatalf("Failed to create temp directory: '%v'", err)
+		}
+		defer os.RemoveAll(tmpDir) // clean up
 
-	// Read the file contents
-	content, err := ioutil.ReadFile(tmpfile.Name())
-	if err != nil {
-		t.Fatalf("Failed to read temp file: %v", err)
-	}
+		// Create a file path in the temporary directory
+		tmpFilePath := filepath.Join(tmpDir, "test_keys.txt")
 
-	if string(content) != expected {
-		t.Errorf("StoreKeys wrote incorrect data. Got %s, want %s", string(content), expected)
-	}
-}
+		// Use the file path with StoreKeys
+		err = StoreKeys(*keys, tmpFilePath)
+		if err != nil {
+			t.Fatalf("StoreKeys failed: '%v'", err)
+		}
 
-func Test_LoadKeysIncompat(t *testing.T) {
-	testKeys := "testpub\ntestpriv"
-	r := strings.NewReader(testKeys)
+		// Read the file contents
+		content, err := ioutil.ReadFile(tmpFilePath)
+		if err != nil {
+			t.Fatalf("Failed to read temp file: %v", err)
+		}
 
-	keys, err := LoadKeysIncompat(r)
-
-	if err != nil {
-		t.Errorf("LoadKeysIncompat failed: %v", err)
-		t.Fail()
-		return
-	}
-
-	if keys.Address != I2PAddr("testpub") {
-		t.Errorf("LoadKeysIncompat returned incorrect public key. Got %s, want %s", keys.Address, "testpub")
-		t.Fail()
-		return
-	}
-
-	if keys.Both != "testpriv" {
-		t.Errorf("LoadKeysIncompat returned incorrect private key. Got %s, want %s", keys.Both, "testpriv")
-		t.Fail()
-		return
-	}
-}
-
-func Test_StoreKeysIncompat(t *testing.T) {
-	keys := I2PKeys{Address: I2PAddr("testpub"), Both: "testpriv"}
-	var buf bytes.Buffer
-
-	err := StoreKeysIncompat(keys, &buf)
-
-	if err != nil {
-		t.Errorf("StoreKeysIncompat failed: %v", err)
-		t.Fail()
-		return
-	}
-
-	expected := "testpub\ntestpriv"
-	if buf.String() != expected {
-		t.Errorf("StoreKeysIncompat wrote incorrect data. Got %s, want %s", buf.String(), expected)
-		t.Fail()
-		return
-	}
+		if string(content) != expected {
+			t.Errorf("StoreKeys wrote incorrect data. Got %s, want %s", string(content), expected)
+		}
+	})
 }
