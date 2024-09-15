@@ -175,15 +175,11 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 	}
 	t.Run("LoadKeysIncompat", func(t *testing.T) {
 		//extract keys
-		addr := keys.Address
-		addr2 := keys.Addr()
+		addr := keys.Addr()
 		fmt.Println(addr)
-		fmt.Println(addr2)
 
 		both := removeNewlines(keys.Both)
 		fmt.Println(both)
-		public := keys.Public() //not encoded to print?
-		_ = public
 
 		//FORMAT TO LOAD: (Address, Both)
 		addrload := addr.String() + "\n" + both
@@ -195,7 +191,7 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 
 		if loadedKeys.Address != keys.Address {
 			//fmt.Printf("loadedKeys.Address md5hash: '%s'\n keys.Address md5hash: '%s'\n", getMD5Hash(string(loadedKeys.Address)), getMD5Hash(string(keys.Address)))
-			t.Errorf("LoadKeysIncompat returned incorrect address. Got '%s', want '%s'", loadedKeys.Address, keys.Address)
+			t.Errorf("LoadKeysIncompat returned incorrect address/public key. Got '%s', want '%s'", loadedKeys.Address, keys.Address)
 
 		}
 
