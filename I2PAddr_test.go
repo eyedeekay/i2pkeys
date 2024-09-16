@@ -156,9 +156,12 @@ func Test_I2PAddrToBytes(t *testing.T) {
 		}
 	})
 }
-func removeNewlines(s string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(s, "\r\n", ""), "\n", "")
-}
+
+/*
+	func removeNewlines(s string) string {
+		return strings.ReplaceAll(strings.ReplaceAll(s, "\r\n", ""), "\n", "")
+	}
+*/
 func Test_KeyGenerationAndHandling(t *testing.T) {
 	// Generate new keys
 	keys, err := NewDestination()
@@ -190,9 +193,11 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 		}
 		if loadedKeys.Both != keys.Both {
 			t.Errorf("LoadKeysIncompat returned incorrect pair. Got '%s'\nwant '%s'\n", loadedKeys.Both, keys.Both)
-			if loadedKeys.Both == removeNewlines(keys.Both) {
-				fmt.Println("However, both pairs are correct if newline is removed in generated keys.")
-			}
+			/*
+				if loadedKeys.Both == removeNewlines(keys.Both) {
+					fmt.Println("However, both pairs are correct if newline is removed in generated keys.")
+				}
+			*/
 		}
 
 	})
