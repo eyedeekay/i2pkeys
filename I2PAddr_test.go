@@ -12,9 +12,9 @@ import (
 
 const (
 	yoursam               = "127.0.0.1:7656"
-	validShortenedI2PAddr = "i2p-projekt.i2p"
-	validI2PAddrB32       = "udhdrtrcetjm5sxzskjyr5ztpeszydbh4dpl3pl4utgqqw2v4jna.b32.i2p"
-	validI2PAddrB64       = "8ZAW~KzGFMUEj0pdchy6GQOOZbuzbqpWtiApEj8LHy2~O~58XKxRrA43cA23a9oDpNZDqWhRWEtehSnX5NoCwJcXWWdO1ksKEUim6cQLP-VpQyuZTIIqwSADwgoe6ikxZG0NGvy5FijgxF4EW9zg39nhUNKRejYNHhOBZKIX38qYyXoB8XCVJybKg89aMMPsCT884F0CLBKbHeYhpYGmhE4YW~aV21c5pebivvxeJPWuTBAOmYxAIgJE3fFU-fucQn9YyGUFa8F3t-0Vco-9qVNSEWfgrdXOdKT6orr3sfssiKo3ybRWdTpxycZ6wB4qHWgTSU5A-gOA3ACTCMZBsASN3W5cz6GRZCspQ0HNu~R~nJ8V06Mmw~iVYOu5lDvipmG6-dJky6XRxCedczxMM1GWFoieQ8Ysfuxq-j8keEtaYmyUQme6TcviCEvQsxyVirr~dTC-F8aZ~y2AlG5IJz5KD02nO6TRkI2fgjHhv9OZ9nskh-I2jxAzFP6Is1kyAAAA"
+	validShortenedI2PAddr = "idk.i2p"
+	validI2PAddrB32       = "b2o47zwxqjbn7jj37yqkmvbmci7kqubwgxu3umqid7cexmc7xudq.b32.i2p"
+	validI2PAddrB64       = "spHxea2xhPjKH9yyEeFJ96aqtvKidH-GiWxs8dH6RWS2FrDoWFhuEkfw77pF~Hv57lLhMaMB3qqWjCtYXOjL48Q1zYbr3MAcTO44wwVPjOU1hU77vbJcUuwBeRvaSr2dZx-FiTSOdQuhPD1EozYNRIMFwZ0fZwKf~3Gj4dEWccOLKs~NbiPsj-~tc5tmhAs8yBeoZEqEBe40X75SfSHY-EnstcZevVAwIXYk3zX3KF0mji3bo2QXuTFcMZHHLiLd2AHLRANzWyvQ9DC1rnCsHJM4xxV4dVp0pHkP1hwBo7E0NJvN4nFkQcj-FI2RJ~cFUCk7qc86PRHwvKCjzSlrgjtDsMUwd83Dz1PfpzCqHNLUFWI7uPKbKcJZhasFm4kEhUyupd85q75Ch2IZE9J2JXodSxmseO5ZKcHK6pFtfR-HbzKjIe92TWHsNkmvtoHiUaOVrWnk-cmo2I1W1VxfL08teDxQ13P80uFaMcameRzuFM2F8pSOpoyEJUDRGLEeBQAEAAcAAA=="
 )
 
 func Test_Basic(t *testing.T) {
@@ -30,7 +30,7 @@ func Test_Basic(t *testing.T) {
 func Test_Basic_Lookup(t *testing.T) {
 	fmt.Println("Test_Basic")
 	fmt.Println("\tAttaching to SAM at " + yoursam)
-	keys, err := Lookup("idk.i2p")
+	keys, err := Lookup(validShortenedI2PAddr)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
