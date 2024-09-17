@@ -337,6 +337,10 @@ HELLO VERSION MIN=3.1 MAX=3.1
 DEST GENERATE SIGNATURE_TYPE=7
 */
 func NewDestination() (*I2PKeys, error) {
+	removeNewlines := func(s string) string {
+		return strings.ReplaceAll(strings.ReplaceAll(s, "\r\n", ""), "\n", "")
+	}
+	//
 	conn, err := net.Dial("tcp", "127.0.0.1:7656")
 	if err != nil {
 		return nil, err
@@ -368,6 +372,8 @@ func NewDestination() (*I2PKeys, error) {
 		}
 		pub := strings.Split(strings.Split(string(buf[:n]), "PRIV=")[0], "PUB=")[1]
 		priv := strings.Split(string(buf[:n]), "PRIV=")[1]
+
+		priv = removeNewlines(priv) //There is an extraneous newline in the private key, so we'll remove it.
 
 		return &I2PKeys{
 			Address: I2PAddr(pub),
