@@ -102,4 +102,4 @@ test-all:
 
 test-subtests: test-newi2paddrfromstring-valid test-newi2paddrfromstring-invalid test-newi2paddrfromstring-base32 test-newi2paddrfromstring-empty test-newi2paddrfromstring-i2p-suffix test-i2paddr-base32-suffix test-i2paddr-base32-length test-desthashfromstring-valid test-desthashfromstring-invalid test-desthashfromstring-empty test-i2paddr-to-bytes-roundtrip test-i2paddr-to-bytes-comparison test-key-generation-and-handling-loadkeys test-key-generation-and-handling-storekeys-incompat test-key-generation-and-handling-storekeys
 
-test: test-basic test-basic-lookup test-newi2paddrfromstring test-i2paddr test-desthashfromstring test-i2paddr-to-bytes test-key-generation-and-handling test-ntcp test-subtests test-all
+test: test-basic test-basic-lookup test-newi2paddrfromstring test-i2paddr test-desthashfromstring test-i2paddr-to-bytes test-key-generation-and-handling test-subtests test-all
