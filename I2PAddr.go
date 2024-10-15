@@ -433,7 +433,7 @@ func NewDestination() (*I2PKeys, error) {
 		log.WithFields(logrus.Fields{
 			"_priv(pre-newline removal)": _priv,
 			"priv":                       priv,
-		}).Info("Removed newline")
+		}).Debug("Removed newline")
 
 		log.Debug("Successfully created new destination")
 
