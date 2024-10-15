@@ -10,7 +10,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
+	"io/ioutil"
 	"net"
 	"os"
 	"strings"
@@ -19,7 +21,39 @@ import (
 var (
 	i2pB64enc *base64.Encoding = base64.NewEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-~")
 	i2pB32enc *base32.Encoding = base32.NewEncoding("abcdefghijklmnopqrstuvwxyz234567")
+	log       *logrus.Logger
 )
+
+func init() {
+	log = logrus.New()
+
+	// We do not want to log by default
+	log.SetOutput(ioutil.Discard)
+	log.SetLevel(logrus.PanicLevel)
+
+	// Check if DEBUG_I2P is set
+	if logLevel := os.Getenv("DEBUG_I2P"); logLevel != "" {
+
+		log.SetOutput(os.Stdout)
+
+		switch strings.ToLower(logLevel) {
+		case "trace":
+			log.SetLevel(logrus.TraceLevel)
+		case "debug":
+			log.SetLevel(logrus.DebugLevel)
+		case "info":
+			log.SetLevel(logrus.InfoLevel)
+		case "warn":
+			log.SetLevel(logrus.WarnLevel)
+		case "error":
+			log.SetLevel(logrus.ErrorLevel)
+		default:
+			log.SetLevel(logrus.WarnLevel)
+		}
+
+		log.WithField("level", log.GetLevel()).Info("Logging enabled.")
+	}
+}
 
 // If you set this to true, Addr will return a base64 String()
 var StringIsBase64 bool
