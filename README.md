@@ -4,7 +4,7 @@ i2pkeys
 Generates and displays the contents of files that are storing i2p keys in the
 incompatible format used for sam3
 
-### Verbosity
+## Verbosity ##
 Logging can be enabled and configured using the DEBUG_I2P environment variable. By default, logging is disabled.
 
 There are three available log levels:
