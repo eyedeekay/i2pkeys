@@ -13,7 +13,7 @@ var (
 	once sync.Once
 )
 
-func InitializeLogger() {
+func InitializeI2PKeysLogger() {
 	once.Do(func() {
 		log = logrus.New()
 		// We do not want to log by default
@@ -37,14 +37,14 @@ func InitializeLogger() {
 	})
 }
 
-// GetLogger returns the initialized logger
-func GetLogger() *logrus.Logger {
+// GetI2PKeysLogger returns the initialized logger
+func GetI2PKeysLogger() *logrus.Logger {
 	if log == nil {
-		InitializeLogger()
+		InitializeI2PKeysLogger()
 	}
 	return log
 }
 
 func init() {
-	InitializeLogger()
+	InitializeI2PKeysLogger()
 }
