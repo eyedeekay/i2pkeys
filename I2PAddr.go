@@ -62,6 +62,7 @@ func fileExists(filename string) (bool, error) {
 	return !info.IsDir(), nil
 }
 
+// LoadKeysIncompat loads keys from non-standard format
 func LoadKeysIncompat(r io.Reader) (I2PKeys, error) {
 	log.Debug("Loading keys from reader")
 	var buff bytes.Buffer
