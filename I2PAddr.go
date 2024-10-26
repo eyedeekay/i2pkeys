@@ -88,7 +88,7 @@ func LoadKeys(r string) (I2PKeys, error) {
 	}
 	if !exists {
 		log.WithError(err).Error("File does not exist")
-		return I2PKeys{}, fmt.Errorf("file does not exist: %s", r)
+		return I2PKeys{}, os.ErrNotExist
 	}
 	fi, err := os.Open(r)
 	if err != nil {
