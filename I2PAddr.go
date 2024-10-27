@@ -95,8 +95,20 @@ func LoadKeys(r string) (I2PKeys, error) {
 		return I2PKeys{}, err
 	}
 	if !exists {
-		log.WithError(err).Error("File does not exist")
-		return I2PKeys{}, os.ErrNotExist
+		// File doesn't exist so we'll generate new keys
+		log.WithError(err).Debug("File does not exist, attempting to generate new keys")
+		k, err := NewDestination()
+		if err != nil {
+			log.WithError(err).Error("Error generating new keys")
+			return I2PKeys{}, err
+		}
+		// Save the new keys to the file
+		err = StoreKeys(*k, r)
+		if err != nil {
+			log.WithError(err).Error("Error saving new keys to file")
+			return I2PKeys{}, err
+		}
+		return *k, nil
 	}
 	fi, err := os.Open(r)
 	if err != nil {
