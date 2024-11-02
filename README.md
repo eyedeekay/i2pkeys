@@ -22,4 +22,4 @@ export DEBUG_I2P=warn
 export DEBUG_I2P=error
 ```
 
-If I2P_DEBUG is set to an unrecognized variable, it will fall back to "debug".
+If DEBUG_I2P is set to an unrecognized variable, it will fall back to "debug".
