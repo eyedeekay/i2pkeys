@@ -238,3 +238,82 @@ func Test_KeyGenerationAndHandling(t *testing.T) {
 		}
 	})
 }
+
+func Test_KeyStorageAndLoading(t *testing.T) {
+	// Generate initial keys
+	keys, err := NewDestination()
+	if err != nil {
+		t.Fatalf("Failed to generate new I2P keys: %v", err)
+	}
+
+	t.Run("StoreAndLoadFile", func(t *testing.T) {
+		// Create temporary directory for test
+		tmpDir, err := ioutil.TempDir("", "test_keys_")
+		if err != nil {
+			t.Fatalf("Failed to create temp directory: %v", err)
+		}
+		defer os.RemoveAll(tmpDir)
+
+		tmpFilePath := filepath.Join(tmpDir, "test_keys.txt")
+
+		// Store keys to file
+		err = StoreKeys(*keys, tmpFilePath)
+		if err != nil {
+			t.Fatalf("StoreKeys failed: %v", err)
+		}
+
+		// Load keys from file
+		loadedKeys, err := LoadKeys(tmpFilePath)
+		if err != nil {
+			t.Fatalf("LoadKeys failed: %v", err)
+		}
+
+		// Verify loaded keys match original
+		if loadedKeys.Address != keys.Address {
+			t.Errorf("Loaded address does not match original. Got %s, want %s",
+				loadedKeys.Address, keys.Address)
+		}
+		if loadedKeys.Both != keys.Both {
+			t.Errorf("Loaded keypair does not match original. Got %s, want %s",
+				loadedKeys.Both, keys.Both)
+		}
+	})
+
+	t.Run("StoreAndLoadIncompat", func(t *testing.T) {
+		var buf bytes.Buffer
+
+		// Store keys to buffer
+		err := StoreKeysIncompat(*keys, &buf)
+		if err != nil {
+			t.Fatalf("StoreKeysIncompat failed: %v", err)
+		}
+
+		// Create new reader from buffer content
+		reader := strings.NewReader(buf.String())
+
+		// Load keys from reader
+		loadedKeys, err := LoadKeysIncompat(reader)
+		if err != nil {
+			t.Fatalf("LoadKeysIncompat failed: %v", err)
+		}
+
+		// Verify loaded keys match original
+		if loadedKeys.Address != keys.Address {
+			t.Errorf("Loaded address does not match original. Got %s, want %s",
+				loadedKeys.Address, keys.Address)
+		}
+		if loadedKeys.Both != keys.Both {
+			t.Errorf("Loaded keypair does not match original. Got %s, want %s",
+				loadedKeys.Both, keys.Both)
+		}
+	})
+
+	t.Run("LoadNonexistentFile", func(t *testing.T) {
+		nonexistentPath := filepath.Join(os.TempDir(), "nonexistent_keys.txt")
+
+		_, err := LoadKeys(nonexistentPath)
+		if err != os.ErrNotExist {
+			t.Errorf("Expected ErrNotExist for nonexistent file, got: %v", err)
+		}
+	})
+}

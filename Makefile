@@ -96,10 +96,23 @@ test-key-generation-and-handling-storekeys-incompat:
 test-key-generation-and-handling-storekeys:
 	go test -v -run Test_KeyGenerationAndHandling/StoreKeys
 
+test-key-storage:
+	go test -v -run Test_KeyStorageAndLoading
+
+# Individual key storage subtests
+test-key-storage-file:
+	go test -v -run Test_KeyStorageAndLoading/StoreAndLoadFile
+
+test-key-storage-incompat:
+	go test -v -run Test_KeyStorageAndLoading/StoreAndLoadIncompat
+
+test-key-storage-nonexistent:
+	go test -v -run Test_KeyStorageAndLoading/LoadNonexistentFile
+
 # Aggregate targets
 test-all:
 	go test -v ./...
 
-test-subtests: test-newi2paddrfromstring-valid test-newi2paddrfromstring-invalid test-newi2paddrfromstring-base32 test-newi2paddrfromstring-empty test-newi2paddrfromstring-i2p-suffix test-i2paddr-base32-suffix test-i2paddr-base32-length test-desthashfromstring-valid test-desthashfromstring-invalid test-desthashfromstring-empty test-i2paddr-to-bytes-roundtrip test-i2paddr-to-bytes-comparison test-key-generation-and-handling-loadkeys test-key-generation-and-handling-storekeys-incompat test-key-generation-and-handling-storekeys
+test-subtests: test-newi2paddrfromstring-valid test-newi2paddrfromstring-invalid test-newi2paddrfromstring-base32 test-newi2paddrfromstring-empty test-newi2paddrfromstring-i2p-suffix test-i2paddr-base32-suffix test-i2paddr-base32-length test-desthashfromstring-valid test-desthashfromstring-invalid test-desthashfromstring-empty test-i2paddr-to-bytes-roundtrip test-i2paddr-to-bytes-comparison test-key-generation-and-handling-loadkeys test-key-generation-and-handling-storekeys-incompat test-key-generation-and-handling-storekeys test-key-storage-file test-key-storage-incompat test-key-storage-nonexistent
 
-test: test-basic test-basic-lookup test-newi2paddrfromstring test-i2paddr test-desthashfromstring test-i2paddr-to-bytes test-key-generation-and-handling test-subtests test-all
+test: test-basic test-basic-lookup test-newi2paddrfromstring test-i2paddr test-desthashfromstring test-i2paddr-to-bytes test-key-generation-and-handling test-key-storage test-subtests test-all
