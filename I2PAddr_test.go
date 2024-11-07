@@ -317,3 +317,12 @@ func Test_KeyStorageAndLoading(t *testing.T) {
 		}
 	})
 }
+
+func Test_BasicInvalidAddress(t *testing.T) {
+	invalidAddr := strings.Repeat("x", 60)
+	invalidAddr += ".b32.i2p"
+	_, err := Lookup(invalidAddr)
+	if err == nil {
+		t.Fatal("Expected error for nonexistent address")
+	}
+}
