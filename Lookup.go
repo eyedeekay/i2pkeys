@@ -49,7 +49,7 @@ func Lookup(addr string) (*I2PAddr, error) {
 		}
 		parts := strings.Split(string(buf[:n]), "VALUE=")
 		if len(parts) < 2 {
-			log.Error("Could not find VALUE=, could not find destination?")
+			log.Error("Could not find VALUE=, maybe we couldn't find the destination?")
 			return nil, fmt.Errorf("could not find VALUE=")
 		}
 		value := parts[1]
